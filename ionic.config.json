@@ -1,0 +1,7 @@
+{
+  "name": "asm",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
