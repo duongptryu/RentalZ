@@ -1,0 +1,11 @@
+{
+    "BEDROOM": {
+        "0": "Studio",
+        "1": "1 Bed room",
+        "2": "2 Bed rooms",
+        "3": "3 Bed rooms",
+        "4": "Other"
+    },
+    "DB_NAME": "Rental_house",
+    "PROJECT_TABLE": "projects"
+}
