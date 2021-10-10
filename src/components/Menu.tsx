@@ -24,28 +24,16 @@ interface AppPage {
 const appPages: AppPage[] = [
   {
     title: 'Home',
-    url: '/page/Home',
+    url: '/',
     iosIcon: homeOutline,
     mdIcon: homeOutline
   },
   {
     title: 'Add Rental',
-    url: '/page/Add',
+    url: '/page/add',
     iosIcon: bagAddOutline,
     mdIcon: bagAddOutline
   },
-  {
-    title: 'Search',
-    url: '/page/Search',
-    iosIcon: searchOutline,
-    mdIcon: searchOutline
-  },
-  // {
-  //   title: 'Logout',
-  //   url: '/page/logout',
-  //   iosIcon: archiveOutline,
-  //   mdIcon: archiveSharp
-  // }
 ];
 
 // const labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];

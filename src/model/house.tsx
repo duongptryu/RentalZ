@@ -1,15 +1,32 @@
 import { DB_NAME, PROJECT_TABLE } from "../config.json";
 import IndexedDb from "../db/db";
 
+export interface ResponseHouseRental {
+  Id: Number
+  PropertyType: string;
+  BedRoom: string;
+  PricePerMonth: Number;
+  Furniture: string[];
+  Notes: string;
+  NameReporter: string;
+  Tag: string;
+  CreatedAt: string;
+  Title: string;
+  Location: string;
+}
+
 export class HouseRental {
-  private PropertyType: string;
-  private BedRoom: string;
-  private PricePerMonth: Number;
-  private Furniture: string[];
-  private Notes: string;
-  private NameReporter: string;
-  private Tag: string;
-  private CreatedAt: string;
+  PropertyType: string;
+  BedRoom: string;
+  PricePerMonth: Number;
+  Furniture: string[];
+  Notes: string;
+  NameReporter: string;
+  Tag: string;
+  CreatedAt: string;
+  Title: string;
+  Location: string;
+  DataBlob: Blob
 
   constructor(
     propertyType: string,
@@ -18,7 +35,10 @@ export class HouseRental {
     furniture: string[],
     notes: string,
     nameReporter: string,
-    tag: string
+    tag: string,
+    location: string,
+    title: string,
+    dataBlob: Blob
   ) {
     this.BedRoom = bedRoom;
     this.PropertyType = propertyType;
@@ -28,6 +48,9 @@ export class HouseRental {
     this.NameReporter = nameReporter;
     this.Tag = tag;
     this.CreatedAt = new Date().toLocaleString("vi-VN");
+    this.Title = title
+    this.Location = location
+    this.DataBlob = dataBlob
   }
 
   public async Add() {
@@ -42,7 +65,19 @@ export class HouseRental {
     }
   }
 
-  public async GetAProject(id: number) {
+  public async Update(id: number) {
+    const db = new IndexedDb(DB_NAME);
+    await db.createObjectStore([PROJECT_TABLE]);
+    try {
+      let result = await db.updateValue(PROJECT_TABLE, this, id);
+      return result;
+    } catch (e) {
+      console.log(e);
+      throw new Error("Error server, please try again!");
+    }
+  }
+
+  static async GetAProject(id: number){
     const db = new IndexedDb(DB_NAME);
     await db.createObjectStore([PROJECT_TABLE]);
     try {
@@ -58,6 +93,17 @@ export class HouseRental {
     await db.createObjectStore([PROJECT_TABLE]);
     try {
       let result = await db.getAllValue(PROJECT_TABLE);
+      return result;
+    } catch (e) {
+      throw new Error("Error server, please try again!");
+    }
+  }
+
+  static async DeleteProject(id: number) {
+    const db = new IndexedDb(DB_NAME);
+    await db.createObjectStore([PROJECT_TABLE]);
+    try {
+      let result = await db.deleteValue(PROJECT_TABLE, id);
       return result;
     } catch (e) {
       throw new Error("Error server, please try again!");

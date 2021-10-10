@@ -6,9 +6,7 @@ import {
   IonItem,
   IonListHeader,
   IonList,
-  IonMenuButton,
   IonPage,
-  IonTitle,
   IonToolbar,
   IonInput,
   IonSelect,
@@ -17,30 +15,65 @@ import {
   IonButton,
   IonLoading,
   IonToast,
+  IonIcon,
+  IonTitle,
+  IonAlert
 } from "@ionic/react";
-import { useState, useRef } from "react";
-import { useHistory } from "react-router";
+import { useEffect, useState, useRef } from "react";
 import { HouseRental } from "../../model/house";
-import "./add.css";
+import { useParams, Redirect, useHistory } from "react-router";
+import { arrowBackOutline } from "ionicons/icons";
 
-const Add: React.FC = () => {
+const Edit: React.FC = () => {
+  let { id } = useParams<{ id: string }>();
+  const history = useHistory();
+  var inputRef = useRef<HTMLInputElement>(null);
+  try {
+    var id_num = parseInt(id);
+  } catch (e) {
+    <Redirect to="/" />;
+  }
+
   const [propertyType, setPropertyType] = useState<string>("");
   const [bedRoom, setBedRoom] = useState<string>("");
-  const [pricePerMonth, setPricePerMonth] = useState<number>(0);
+  const [pricePerMonth, setPricePerMonth] = useState<number>();
   const [furnitures, setFurniture] = useState<string[]>([]);
   const [notes, setNotes] = useState<string>("");
   const [nameReporter, setNameReporter] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [location, setLocation] = useState<string>("");
-  const [pictureURL, setPictureURL] = useState("https://via.placeholder.com/350x150");
   const [loading, setLoading] = useState(false);
+  const [time, setTime] = useState<string>("");
+  const [pictureURL, setPictureURL] = useState("")
   const [showToast, setShowToast] = useState(false);
   const [err, setErr] = useState("");
+  const [showAlert, setShowAlert] = useState(false)
+  const [alertMsg, setAlertMsg] = useState("")
 
-  let history = useHistory();
-  var inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    fetchData(id_num);
+  }, []);
 
-  const handleReset = () => {
+  const fetchData = async (id: number) => {
+    setLoading(true);
+    let result = await HouseRental.GetAProject(id);
+    if (result === undefined) {
+        return <Redirect to="/404"/>
+    }
+    setTitle(result["Title"]);
+    setLocation(result["Location"]);
+    setPropertyType(result["PropertyType"]);
+    setBedRoom(result["BedRoom"]);
+    setPricePerMonth(Number(result["PricePerMonth"]));
+    setFurniture(result["Furniture"]);
+    setNameReporter(result["NameReporter"]);
+    setNotes(result["Notes"]);
+    setTime(result["CreatedAt"]);
+    setPictureURL(result["DataBlob"])
+    setLoading(false);
+  };
+
+  const handelCancel = () => {
     setLoading(true);
     setTimeout(() => {
       setPropertyType("");
@@ -55,7 +88,7 @@ const Add: React.FC = () => {
     }, 500);
   };
 
-  const handleAdd = async () => {
+  const handleEdit = async () => {
     setLoading(true);
     if (propertyType === "") {
       setErr("Property type field cannot be empty");
@@ -67,7 +100,7 @@ const Add: React.FC = () => {
       setShowToast(true);
       setLoading(false);
       return false;
-    } else if (pricePerMonth < 0 || isNaN(pricePerMonth)) {
+    } else if (Number(pricePerMonth) < 0 || isNaN(Number(pricePerMonth))) {
       setErr("Price cannot be empty and must be biger than or equal 0");
       setShowToast(true);
       setLoading(false);
@@ -98,16 +131,16 @@ const Add: React.FC = () => {
       title,
       location,
     ];
+
     const response = await fetch(pictureURL);
     const blob = await response.blob();
-
 
     const tag = tagArray.join(",");
     try {
       let newHouseRental = new HouseRental(
         propertyType,
         bedRoom,
-        pricePerMonth,
+        Number(pricePerMonth),
         furnitures,
         notes,
         nameReporter,
@@ -116,7 +149,7 @@ const Add: React.FC = () => {
         title,
         blob
       );
-      var id = await newHouseRental.Add();
+      await newHouseRental.Update(id_num);
     } catch (e) {
       setErr(String(e));
       setShowToast(true);
@@ -124,18 +157,18 @@ const Add: React.FC = () => {
       return;
     }
     await setTimeout(() => {
-      setPropertyType("");
-      setBedRoom("");
-      setPricePerMonth(0);
-      setFurniture([]);
-      setNotes("");
-      setNameReporter("");
-      setTitle("");
-      setLocation("");
-      setErr("Add project rental success");
+      // setPropertyType("");
+      // setBedRoom("");
+      // setPricePerMonth(0);
+      // setFurniture([]);
+      // setNotes("");
+      // setNameReporter("");
+      // setTitle("")
+      // setLocation("")
+      setErr("Update project rental success");
       setShowToast(true);
       setLoading(false);
-      return history.push("/detail/" + id);
+      return (document.location.href = "/detail/" + id_num);
     }, 1000);
   };
 
@@ -144,13 +177,20 @@ const Add: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonMenuButton />
+            <IonButton
+              onClick={() => {
+                history.push("/detail/" + id_num);
+              }}
+            >
+              {" "}
+              <IonIcon icon={arrowBackOutline}></IonIcon> Back
+            </IonButton>
           </IonButtons>
-          <IonTitle>Add Rental House</IonTitle>
+          <IonTitle>Edit Page</IonTitle>
         </IonToolbar>
       </IonHeader>
 
-      <IonContent fullscreen>
+      <IonContent className="ion-padding">
         <IonList>
           <IonListHeader lines="none">
             <IonLabel
@@ -166,7 +206,7 @@ const Add: React.FC = () => {
               style={{ textAlign: "center", marginTop: "0px" }}
               color="tertiary"
             >
-              Add New House For Rental
+              Edit Project RentalZ
             </IonLabel>
           </IonItem>
         </IonList>
@@ -305,18 +345,20 @@ const Add: React.FC = () => {
               }}
             ></input>
             <img
-              src={pictureURL}
+              src={URL.createObjectURL(pictureURL)}
               onClick={() => inputRef.current?.click()}
               width="120"
               height="100"
               alt="abc"
             />
           </IonItem>
+
+
         </IonList>
 
-        <div style={{ marginTop: "20px", marginLeft: "30%" }}>
-          <IonButton onClick={handleAdd}>Add</IonButton>
-          <IonButton onClick={handleReset}>Reset</IonButton>
+        <div style={{ marginTop: "20px", marginLeft: "25%" }}>
+          <IonButton onClick={() => {setShowAlert(true)}}>Submit</IonButton>
+          <IonButton onClick={() => {history.push("/detail/" + id_num)}}>Cancel</IonButton>
         </div>
       </IonContent>
       <IonLoading
@@ -335,8 +377,32 @@ const Add: React.FC = () => {
         animated={true}
         duration={2000}
       />
+
+      <IonAlert
+        isOpen={showAlert}
+        onDidDismiss={() => setShowAlert(false)}
+        cssClass="my-custom-class"
+        header={"Confirm!"}
+        message={"Are you sure want to change"}
+        buttons={[
+          {
+            text: "No",
+            role: "cancel",
+            cssClass: "secondary",
+            handler: (blah) => {
+              setShowAlert(false)
+            },
+          },
+          {
+            text: "Yes",
+            handler: () => {
+              handleEdit()
+            },
+          },
+        ]}
+      />
     </IonPage>
   );
 };
 
-export default Add;
+export default Edit;

@@ -12,14 +12,23 @@ import {
   IonCard,
   IonCardTitle,
   IonLoading,
+  IonNote,
+  IonRefresher,
+  IonRefresherContent,
+  IonSearchbar,
+  IonItem,
+  IonImg
 } from "@ionic/react";
+import { RefresherEventDetail } from '@ionic/core';
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
 import { HouseRental } from "../../model/house";
+import { chevronDownCircleOutline } from 'ionicons/icons';
 
 const Home: React.FC = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchText, setSearchText] = useState("")
+  const [dataDisplay, setDataDisplay] = useState<any>([])
 
   useEffect(() => {
     fetchData();
@@ -29,8 +38,33 @@ const Home: React.FC = () => {
     setLoading(true);
     let result = await HouseRental.GetProjects();
     setData(result);
+    setDataDisplay(result)
     setLoading(false);
   };
+
+  async function doRefresh(event: CustomEvent<RefresherEventDetail>) {
+    await fetchData()
+    setSearchText("")
+    setLoading(false)
+    event.detail.complete();
+  }
+
+  const handleSearch = (key: string) => {
+    setSearchText(key)
+    let tag = ""
+    if (key === ""){
+      setDataDisplay(data)
+    }else {
+      var result:[] = []
+      data.forEach(e => {
+        tag = e["Tag"]
+        if (tag.includes(key)) {
+          result.push(e)
+        }
+      })
+      setDataDisplay(result)
+    }
+  }
 
   return (
     <IonPage>
@@ -42,15 +76,18 @@ const Home: React.FC = () => {
           <IonTitle>Home page</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent>
-        {data.length > 0 &&
-          data.map((e) => {
+      <IonContent className="ion-padding">
+        <IonSearchbar value={searchText} onIonChange={e => handleSearch(e.detail.value!)}></IonSearchbar>
+
+        {dataDisplay.length > 0 &&
+          dataDisplay.map((e: any) => {
             return (
-              <IonCard>
-                <img src="https://via.placeholder.com/350x150" />
+              <IonCard onClick={() => {document.location.href="/detail/" + e["id"]}}>
+                <img src={URL.createObjectURL(e["DataBlob"])} width="350" height="150" alt="abc"/>
                 <IonCardHeader>
                   <IonCardSubtitle>{e["CreatedAt"]}</IonCardSubtitle>
-                  <IonCardTitle>{e["PricePerMonth"]}$/ month</IonCardTitle>
+                  <IonCardTitle>{e["Title"]}</IonCardTitle>
+                  <IonNote style={{fontSize:"11px", color:"yellow"}}>{e["PricePerMonth"]}$/ month</IonNote>
                 </IonCardHeader>
 
                 <IonCardContent>
@@ -63,19 +100,19 @@ const Home: React.FC = () => {
               </IonCard>
             );
           })}
-        {/* <IonCard>
-          <img src="https://via.placeholder.com/350x150"/>
-          <IonCardHeader>
-            <IonCardSubtitle>Card Subtitle</IonCardSubtitle>
-            <IonCardTitle>Card Title</IonCardTitle>
-          </IonCardHeader>
+          {dataDisplay.length < 1 && (
+            <h1>No result!</h1>
+          )}
+      <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
+        <IonRefresherContent
+          pullingIcon={chevronDownCircleOutline}
+          pullingText="Pull to refresh"
+          refreshingSpinner="circles"
+          refreshingText="Refreshing...">
+        </IonRefresherContent>
+      </IonRefresher>
 
-          <IonCardContent>
-            Keep close to Nature's heart... and break clear away, once in
-            awhile, and climb a mountain or spend a week in the woods. Wash your
-            spirit clean.
-          </IonCardContent>
-        </IonCard> */}
+
       </IonContent>
       <IonLoading
         // cssClass='my-custom-class'
@@ -83,6 +120,7 @@ const Home: React.FC = () => {
         onDidDismiss={() => setLoading(false)}
         message={"Please wait..."}
       />
+      
     </IonPage>
   );
 };

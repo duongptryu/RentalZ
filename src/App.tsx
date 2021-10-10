@@ -4,6 +4,9 @@ import { Redirect, Route } from 'react-router-dom';
 import Menu from './components/Menu';
 import Home from './pages/home/home';
 import Add from './pages/add/add';
+import Detail from './pages/detail/detail';
+import Edit from './pages/edit/edit';
+import NotFound from './pages/404';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -23,18 +26,9 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import { useEffect } from 'react';
-import IndexedDb from './db/db'
-import { DB_NAME, PROJECT_TABLE } from "./config.json"
 
 const App: React.FC = () => {
-  // useEffect(() => {
-  //   const runIndexDb = async () => {
-  //     const indexedDb = new IndexedDb(DB_NAME);
-  //     await indexedDb.createObjectStore([PROJECT_TABLE]);
-  // }
-  // runIndexDb();
-  // },[])
+
   return (
     <IonApp>
       <IonReactRouter>
@@ -42,14 +36,24 @@ const App: React.FC = () => {
           <Menu />
           <IonRouterOutlet id="main">
             <Route path="/" exact={true}>
-            <Redirect to="/page/home"/>
+            <Redirect to="/"/>
             </Route>
-            <Route path="/page/home" exact={true}>
+            <Route path="/" exact={true}>
             <Home></Home>
             </Route>
             <Route path="/page/add" exact={true}>
             <Add></Add>
             </Route>
+            <Route path="/detail/:id" exact={true}>
+            <Detail></Detail>
+            </Route>
+            <Route path="/edit/:id" exact={true}>
+            <Edit></Edit>
+            </Route>
+            <Route path="/404">
+            <NotFound></NotFound>
+            </Route>
+            <Route component={NotFound} />
           </IonRouterOutlet>
         </IonSplitPane>
       </IonReactRouter>
