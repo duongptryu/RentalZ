@@ -58,7 +58,8 @@ const Edit: React.FC = () => {
     setLoading(true);
     let result = await HouseRental.GetAProject(id);
     if (result === undefined) {
-        return <Redirect to="/404"/>
+      setLoading(false)
+      return history.push("/404")
     }
     setTitle(result["Title"]);
     setLocation(result["Location"]);
@@ -344,13 +345,16 @@ const Edit: React.FC = () => {
                 }
               }}
             ></input>
-            <img
-              src={URL.createObjectURL(pictureURL)}
-              onClick={() => inputRef.current?.click()}
-              width="120"
-              height="100"
-              alt="abc"
-            />
+            {pictureURL.length !== 0 && (
+                      <img src={URL.createObjectURL(pictureURL)} alt="abc" width="120"
+                      height="100"/>
+          )}
+          {
+            pictureURL.length === 0 && (
+              <img src="https://via.placeholder.com/350x150" alt="abc" width="120"
+              height="100"/>
+            )
+          }
           </IonItem>
 
 

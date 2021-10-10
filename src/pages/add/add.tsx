@@ -18,7 +18,7 @@ import {
   IonLoading,
   IonToast,
 } from "@ionic/react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useHistory } from "react-router";
 import { HouseRental } from "../../model/house";
 import "./add.css";
@@ -36,6 +36,15 @@ const Add: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [err, setErr] = useState("");
+
+  useEffect(() => {
+    return () => {
+      if (pictureURL.startsWith("blob")) {
+        URL.revokeObjectURL(pictureURL);
+        console.log("Revoked Url", pictureURL)
+      }
+    }
+  }, [pictureURL])
 
   let history = useHistory();
   var inputRef = useRef<HTMLInputElement>(null);

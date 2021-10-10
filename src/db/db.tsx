@@ -67,6 +67,16 @@ class IndexedDb {
     return result;
   }
 
+  
+  public async addComment(tableName: string, new_list_comment: any, id: number) {
+    const tx = this.db.transaction(tableName, "readwrite");
+    const store = tx.objectStore(tableName);
+    let data = await store.get(id);
+    data.Comments = new_list_comment;
+    const result = await store.put(data);
+    return result;
+  }
+
   public async deleteValue(tableName: string, id: number) {
     const tx = this.db.transaction(tableName, "readwrite");
     const store = tx.objectStore(tableName);

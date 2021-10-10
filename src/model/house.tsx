@@ -1,20 +1,6 @@
 import { DB_NAME, PROJECT_TABLE } from "../config.json";
 import IndexedDb from "../db/db";
 
-export interface ResponseHouseRental {
-  Id: Number
-  PropertyType: string;
-  BedRoom: string;
-  PricePerMonth: Number;
-  Furniture: string[];
-  Notes: string;
-  NameReporter: string;
-  Tag: string;
-  CreatedAt: string;
-  Title: string;
-  Location: string;
-}
-
 export class HouseRental {
   PropertyType: string;
   BedRoom: string;
@@ -27,6 +13,7 @@ export class HouseRental {
   Title: string;
   Location: string;
   DataBlob: Blob
+  Comments: any
 
   constructor(
     propertyType: string,
@@ -51,6 +38,7 @@ export class HouseRental {
     this.Title = title
     this.Location = location
     this.DataBlob = dataBlob
+    this.Comments = []
   }
 
   public async Add() {
@@ -70,6 +58,18 @@ export class HouseRental {
     await db.createObjectStore([PROJECT_TABLE]);
     try {
       let result = await db.updateValue(PROJECT_TABLE, this, id);
+      return result;
+    } catch (e) {
+      console.log(e);
+      throw new Error("Error server, please try again!");
+    }
+  }
+  
+  static async AddComment(id: number, new_list_comment: any) {
+    const db = new IndexedDb(DB_NAME);
+    await db.createObjectStore([PROJECT_TABLE]);
+    try {
+      let result = await db.addComment(PROJECT_TABLE, new_list_comment, id);
       return result;
     } catch (e) {
       console.log(e);
