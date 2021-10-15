@@ -12,8 +12,8 @@ export class HouseRental {
   CreatedAt: string;
   Title: string;
   Location: string;
-  DataBlob: Blob
-  Comments: any
+  DataBlob: Blob;
+  Comments: any;
 
   constructor(
     propertyType: string,
@@ -25,7 +25,8 @@ export class HouseRental {
     tag: string,
     location: string,
     title: string,
-    dataBlob: Blob
+    dataBlob: Blob,
+    dateAndTime: string
   ) {
     this.BedRoom = bedRoom;
     this.PropertyType = propertyType;
@@ -34,7 +35,7 @@ export class HouseRental {
     this.Notes = notes;
     this.NameReporter = nameReporter;
     this.Tag = tag;
-    this.CreatedAt = new Date().toLocaleString("vi-VN");
+    this.CreatedAt = dateAndTime
     this.Title = title
     this.Location = location
     this.DataBlob = dataBlob

@@ -17,6 +17,8 @@ import {
   IonButton,
   IonLoading,
   IonToast,
+  IonDatetime,
+  IonAlert
 } from "@ionic/react";
 import { useState, useRef, useEffect } from "react";
 import { useHistory } from "react-router";
@@ -27,21 +29,22 @@ const Add: React.FC = () => {
   const [propertyType, setPropertyType] = useState<string>("");
   const [bedRoom, setBedRoom] = useState<string>("");
   const [pricePerMonth, setPricePerMonth] = useState<number>(0);
-  const [furnitures, setFurniture] = useState<string[]>([]);
+  const [furniture, setFurniture] = useState<string[]>([]);
   const [notes, setNotes] = useState<string>("");
   const [nameReporter, setNameReporter] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [location, setLocation] = useState<string>("");
-  const [pictureURL, setPictureURL] = useState("https://via.placeholder.com/350x150");
-  const [loading, setLoading] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [err, setErr] = useState("");
+  const [pictureURL, setPictureURL] = useState<string>("https://via.placeholder.com/350x150");
+  const [time, setTime] = useState<string>(new Date().toLocaleString("vi-VN"))
+  const [loading, setLoading] = useState<boolean>(false);
+  const [showToast, setShowToast] = useState<boolean>(false);
+  const [err, setErr] = useState<string>("");
+  const [showAlert, setShowAlert] = useState<boolean>(false)
 
   useEffect(() => {
     return () => {
       if (pictureURL.startsWith("blob")) {
         URL.revokeObjectURL(pictureURL);
-        console.log("Revoked Url", pictureURL)
       }
     }
   }, [pictureURL])
@@ -62,6 +65,10 @@ const Add: React.FC = () => {
       setLocation("");
       setLoading(false);
     }, 500);
+  };
+
+  const formatVNDate = (iosString: string) => {
+    return new Date(iosString).toLocaleString("vi-VN");
   };
 
   const handleAdd = async () => {
@@ -96,9 +103,17 @@ const Add: React.FC = () => {
       setShowToast(true);
       setLoading(false);
       return false;
+    }else if (pictureURL == "https://via.placeholder.com/350x150") {
+      setErr("Image field cannot be empty");
+      setShowToast(true);
+      setLoading(false);
+    } else if (time == null || time === undefined) {
+      setErr("Date time field cannot be empty");
+      setShowToast(true);
+      setLoading(false);
     }
     const tagArray = [
-      ...furnitures,
+      ...furniture,
       propertyType,
       bedRoom,
       String(pricePerMonth),
@@ -106,6 +121,7 @@ const Add: React.FC = () => {
       notes,
       title,
       location,
+      time
     ];
     const response = await fetch(pictureURL);
     const blob = await response.blob();
@@ -117,13 +133,14 @@ const Add: React.FC = () => {
         propertyType,
         bedRoom,
         pricePerMonth,
-        furnitures,
+        furniture,
         notes,
         nameReporter,
         tag,
         location,
         title,
-        blob
+        blob,
+        formatVNDate(time)
       );
       var id = await newHouseRental.Add();
     } catch (e) {
@@ -247,7 +264,7 @@ const Add: React.FC = () => {
               interface="popover"
               multiple={true}
               placeholder="Select Multiple"
-              value={furnitures}
+              value={furniture}
               onIonChange={(e) => {
                 setFurniture(e.detail.value);
               }}
@@ -299,6 +316,14 @@ const Add: React.FC = () => {
             ></IonInput>
           </IonItem>
 
+          <IonItem style={{ marginTop: "20px" }}>
+            <IonLabel position="fixed">Date and time</IonLabel>
+            <IonDatetime
+              value={time}
+              onIonChange={(e) => setTime(e.detail.value!)}
+            ></IonDatetime>
+          </IonItem>
+
           <IonItem>
             <input
               ref={inputRef}
@@ -324,7 +349,7 @@ const Add: React.FC = () => {
         </IonList>
 
         <div style={{ marginTop: "20px", marginLeft: "30%" }}>
-          <IonButton onClick={handleAdd}>Add</IonButton>
+          <IonButton onClick={() => {setShowAlert(true)}}>Add</IonButton>
           <IonButton onClick={handleReset}>Reset</IonButton>
         </div>
       </IonContent>
@@ -343,6 +368,30 @@ const Add: React.FC = () => {
         color="warning"
         animated={true}
         duration={2000}
+      />
+      
+      <IonAlert
+        isOpen={showAlert}
+        onDidDismiss={() => setShowAlert(false)}
+        cssClass="my-custom-class"
+        header={"Confirm!"}
+        message={"Are you sure want to add"}
+        buttons={[
+          {
+            text: "No",
+            role: "cancel",
+            cssClass: "secondary",
+            handler: (blah) => {
+              setShowAlert(false);
+            },
+          },
+          {
+            text: "Yes",
+            handler: () => {
+              handleAdd();
+            },
+          },
+        ]}
       />
     </IonPage>
   );

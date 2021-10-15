@@ -1,0 +1,6 @@
+{
+	"appId": "io.ionic.starter",
+	"appName": "asm",
+	"webDir": "build",
+	"bundledWebRuntime": false
+}

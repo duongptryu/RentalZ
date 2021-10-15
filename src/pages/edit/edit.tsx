@@ -17,7 +17,8 @@ import {
   IonToast,
   IonIcon,
   IonTitle,
-  IonAlert
+  IonAlert,
+  IonDatetime,
 } from "@ionic/react";
 import { useEffect, useState, useRef } from "react";
 import { HouseRental } from "../../model/house";
@@ -44,22 +45,26 @@ const Edit: React.FC = () => {
   const [location, setLocation] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [time, setTime] = useState<string>("");
-  const [pictureURL, setPictureURL] = useState("")
+  const [pictureURL, setPictureURL] = useState("");
   const [showToast, setShowToast] = useState(false);
   const [err, setErr] = useState("");
-  const [showAlert, setShowAlert] = useState(false)
-  const [alertMsg, setAlertMsg] = useState("")
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMsg, setAlertMsg] = useState("");
 
   useEffect(() => {
     fetchData(id_num);
   }, []);
 
+  const formatVNDate = (iosString: string) => {
+    return new Date(iosString).toLocaleString("vi-VN");
+  };
+
   const fetchData = async (id: number) => {
     setLoading(true);
     let result = await HouseRental.GetAProject(id);
     if (result === undefined) {
-      setLoading(false)
-      return history.push("/404")
+      setLoading(false);
+      return history.push("/404");
     }
     setTitle(result["Title"]);
     setLocation(result["Location"]);
@@ -70,7 +75,7 @@ const Edit: React.FC = () => {
     setNameReporter(result["NameReporter"]);
     setNotes(result["Notes"]);
     setTime(result["CreatedAt"]);
-    setPictureURL(result["DataBlob"])
+    setPictureURL(result["DataBlob"]);
     setLoading(false);
   };
 
@@ -121,6 +126,10 @@ const Edit: React.FC = () => {
       setShowToast(true);
       setLoading(false);
       return false;
+    } else if (time == null || time === undefined) {
+      setErr("Date time field cannot be empty");
+      setShowToast(true);
+      setLoading(false);
     }
     const tagArray = [
       ...furnitures,
@@ -131,6 +140,7 @@ const Edit: React.FC = () => {
       notes,
       title,
       location,
+      time
     ];
 
     const response = await fetch(pictureURL);
@@ -148,7 +158,8 @@ const Edit: React.FC = () => {
         tag,
         location,
         title,
-        blob
+        blob,
+        formatVNDate(time)
       );
       await newHouseRental.Update(id_num);
     } catch (e) {
@@ -332,6 +343,14 @@ const Edit: React.FC = () => {
           </IonItem>
 
           <IonItem>
+            <IonLabel position="fixed">Date and time</IonLabel>
+            <IonDatetime
+              value={time}
+              onIonChange={(e) => setTime(e.detail.value!)}
+            ></IonDatetime>
+          </IonItem>
+
+          <IonItem>
             <input
               ref={inputRef}
               type="file"
@@ -346,23 +365,39 @@ const Edit: React.FC = () => {
               }}
             ></input>
             {pictureURL.length !== 0 && (
-                      <img src={URL.createObjectURL(pictureURL)} alt="abc" width="120"
-                      height="100"/>
-          )}
-          {
-            pictureURL.length === 0 && (
-              <img src="https://via.placeholder.com/350x150" alt="abc" width="120"
-              height="100"/>
-            )
-          }
+              <img
+                src={URL.createObjectURL(pictureURL)}
+                alt="abc"
+                width="120"
+                height="100"
+              />
+            )}
+            {pictureURL.length === 0 && (
+              <img
+                src="https://via.placeholder.com/350x150"
+                alt="abc"
+                width="120"
+                height="100"
+              />
+            )}
           </IonItem>
-
-
         </IonList>
 
         <div style={{ marginTop: "20px", marginLeft: "25%" }}>
-          <IonButton onClick={() => {setShowAlert(true)}}>Submit</IonButton>
-          <IonButton onClick={() => {history.push("/detail/" + id_num)}}>Cancel</IonButton>
+          <IonButton
+            onClick={() => {
+              setShowAlert(true);
+            }}
+          >
+            Submit
+          </IonButton>
+          <IonButton
+            onClick={() => {
+              history.push("/detail/" + id_num);
+            }}
+          >
+            Cancel
+          </IonButton>
         </div>
       </IonContent>
       <IonLoading
@@ -394,13 +429,13 @@ const Edit: React.FC = () => {
             role: "cancel",
             cssClass: "secondary",
             handler: (blah) => {
-              setShowAlert(false)
+              setShowAlert(false);
             },
           },
           {
             text: "Yes",
             handler: () => {
-              handleEdit()
+              handleEdit();
             },
           },
         ]}

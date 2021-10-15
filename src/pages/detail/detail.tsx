@@ -47,7 +47,6 @@ const Detail: React.FC = () => {
   const [propertyType, setPropertyType] = useState<string>("");
   const [bedRoom, setBedRoom] = useState<string>("");
   const [pricePerMonth, setPricePerMonth] = useState<Number>(0);
-  const [furnitures, setFurniture] = useState<string[]>([]);
   const [furnitureStr, setFurnitureStr] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
   const [nameReporter, setNameReporter] = useState<string>("");
@@ -83,8 +82,7 @@ const Detail: React.FC = () => {
     setPropertyType(result["PropertyType"]);
     setBedRoom(result["BedRoom"]);
     setPricePerMonth(result["PricePerMonth"]);
-    setFurniture(result["Furniture"]);
-    setFurnitureStr(furnitures.join(","));
+    setFurnitureStr(result["Furniture"].join(","));
     setNameReporter(result["NameReporter"]);
     setNotes(result["Notes"]);
     setTime(result["CreatedAt"]);
@@ -244,7 +242,12 @@ const Detail: React.FC = () => {
           </IonItemDivider>
 
           <IonList>
-            {comments.length === 0 && <h1>No comment/ review</h1>}
+            {comments.length === 0 && 
+            (
+              <IonItem>
+            <b style={{color:"red"}}>No comment/ review</b>
+              </IonItem>
+            )}
             {comments.length > 0 &&
               comments.map((e: any) => {
                 return (

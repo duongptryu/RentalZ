@@ -58,7 +58,7 @@ const Home: React.FC = () => {
       var result:[] = []
       data.forEach(e => {
         tag = e["Tag"]
-        if (tag.includes(key)) {
+        if (tag.toLowerCase().includes(key.toLowerCase())) {
           result.push(e)
         }
       })
