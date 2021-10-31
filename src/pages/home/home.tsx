@@ -77,7 +77,7 @@ const Home: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <IonSearchbar value={searchText} onIonChange={e => handleSearch(e.detail.value!)}></IonSearchbar>
+        <IonSearchbar placeholder="Search for name, price ..." value={searchText} onIonChange={e => handleSearch(e.detail.value!)}></IonSearchbar>
 
         {dataDisplay.length > 0 &&
           dataDisplay.map((e: any) => {
